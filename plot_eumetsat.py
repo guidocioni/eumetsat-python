@@ -1,5 +1,12 @@
+
+# coding: utf-8
+
+# In[2]:
+
+
 # Required libraries
 import matplotlib.pyplot as plt
+# %matplotlib
 from netCDF4 import Dataset
 from mpl_toolkits.basemap import Basemap # Import the Basemap toolkit
 import numpy as np # Import the Numpy package
@@ -14,12 +21,11 @@ cpt = loadCPT('IR4AVHRR6.cpt')
 cpt_convert = LinearSegmentedColormap('cpt', cpt)
 
 path = '/work/mh0731/m300382/sat/ophelia/'
+first=True
 
 for fname in glob(path+"*.nc"):
-    print(fname)
     # Search for the Scan Start in the file name
     time = (fname[fname.find("MG_")+3:fname.find(".nc")])
-
     # Format the "Observation Start" string
     date = datetime.strptime(time,'%Y%m%d%H%M%S')
     # Open the file using the NetCDF4 library
@@ -27,8 +33,6 @@ for fname in glob(path+"*.nc"):
 
     # Extract the Brightness Temperature values from the NetCDF
     ir_10p8 = np.ma.masked_less(nc.variables['ch9'][:], 10)
-    lons = np.array(nc.variables['lon'])
-    lats = np.array(nc.variables['lat'])
 
     nu_c=930.659
     alpha=0.9983
@@ -38,12 +42,16 @@ for fname in glob(path+"*.nc"):
     temp_b=( (C2*nu_c) / (alpha*np.log((C1*nu_c**3/ir_10p8)+1)) )- ( beta/alpha )
     temp_b=temp_b-273.15
 
-    bmap = Basemap(projection='cyl', llcrnrlon=lons[0,0], llcrnrlat=lats[0,0], urcrnrlon=lons[-1,-1], urcrnrlat=lats[-1,-1],  resolution='i')
-    # bmap = Basemap(projection='cyl', llcrnrlon=-40, llcrnrlat=30, urcrnrlon=-30, urcrnrlat=40,  resolution='i')
+    if first:
+        lons = np.array(nc.variables['lon'])
+        lats = np.array(nc.variables['lat'])
+        bmap = Basemap(projection='cyl', llcrnrlon=lons[0,0], llcrnrlat=lats[0,0], urcrnrlon=lons[-1,-1], urcrnrlat=lats[-1,-1],  resolution='i')
+        #bmap = Basemap(projection='cyl', llcrnrlon=-40, llcrnrlat=30, urcrnrlon=-30, urcrnrlat=40,  resolution='i')
+        # Draw the coastlines, countries, parallels and meridians
+        first=False
+    print(fname)
 
     bmap.contourf(lons,lats,temp_b,np.arange(-90,30,0.5),cmap=cpt_convert)
-
-    # Draw the coastlines, countries, parallels and meridians
     bmap.drawcoastlines(linewidth=0.5, linestyle='solid', color='white')
     bmap.drawcountries(linewidth=0.5, linestyle='solid', color='white')
     bmap.drawparallels(np.arange(-90.0, 90.0, 10.0), linewidth=0.1, color='white', labels=[True, False, False, True])
