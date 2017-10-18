@@ -13,7 +13,7 @@ cpt = loadCPT('IR4AVHRR6.cpt')
 # Makes a linear interpolation with the CPT file
 cpt_convert = LinearSegmentedColormap('cpt', cpt)
 
-path = '/Users/guidocioni/mistral_ssh/sat/ophelia/'
+path = '/work/mh0731/m300382/sat/ophelia/'
 
 for fname in glob(path+"*.nc"):
     print(fname)
@@ -30,14 +30,14 @@ for fname in glob(path+"*.nc"):
     lons = np.array(nc.variables['lon'])
     lats = np.array(nc.variables['lat'])
 
-    nu_c=930.659 
+    nu_c=930.659
     alpha=0.9983
     beta=0.627
     C1=1.19104E-5
-    C2=1.43877 
+    C2=1.43877
     temp_b=( (C2*nu_c) / (alpha*np.log((C1*nu_c**3/ir_10p8)+1)) )- ( beta/alpha )
     temp_b=temp_b-273.15
-    
+
     bmap = Basemap(projection='cyl', llcrnrlon=lons[0,0], llcrnrlat=lats[0,0], urcrnrlon=lons[-1,-1], urcrnrlat=lats[-1,-1],  resolution='i')
     # bmap = Basemap(projection='cyl', llcrnrlon=-40, llcrnrlat=30, urcrnrlon=-30, urcrnrlat=40,  resolution='i')
 
