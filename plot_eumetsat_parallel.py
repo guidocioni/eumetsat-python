@@ -35,7 +35,6 @@ def plot_files(fnames):
     first=True
 
     for fname in fnames:
-        print(fname)
         # Search for the Scan Start in the file name
         time = (fname[fname.find("MG_")+3:fname.find(".nc")])
         # Format the "Observation Start" string
@@ -64,13 +63,11 @@ def plot_files(fnames):
         if first:
             lons = np.array(nc.variables['lon'])
             lats = np.array(nc.variables['lat'])
-            #bmap = Basemap(projection='cyl', llcrnrlon=lons[0,0], llcrnrlat=lats[0,0],\
-            #urcrnrlon=lons[-1,-1], urcrnrlat=lats[-1,-1],  resolution='i')
-            bmap = Basemap(projection='cyl', llcrnrlon=-50, llcrnrlat=20, urcrnrlon=0, urcrnrlat=60,  resolution='l')
+            bmap = Basemap(projection='cyl', llcrnrlon=-50, llcrnrlat=20, urcrnrlon=-5, urcrnrlat=60,  resolution='l')
             # Draw the coastlines, countries, parallels and meridians
             first=False
 
-        bmap.contourf(lons,lats,temp_b,np.arange(-80,30,0.5),cmap=cpt_convert,extend="both")
+        bmap.contourf(lons,lats,temp_b,np.arange(-80,50,0.5),cmap=cpt_convert,extend="both")
         bmap.drawcoastlines(linewidth=0.5, linestyle='solid', color='white')
         bmap.drawcountries(linewidth=0.5, linestyle='solid', color='white')
         bmap.drawparallels(np.arange(-90.0, 90.0, 10.0), linewidth=0.2, color='white', labels=[True, False, False, True])
@@ -82,7 +79,6 @@ def plot_files(fnames):
         date_formatted = datetime.strftime(date,'%H:%MZ %a %d %b %Y')
         plt.suptitle(date_formatted, fontsize=14, fontweight='bold')
         plt.title(u"\N{COPYRIGHT SIGN}"+'EUMETSAT - prepared by Guido Cioni (www.guidocioni.it)',fontsize=8 )
-    #    plt.show()
         plt.savefig('./images/%s.png' % datetime.strftime(date,'%Y%m%d%H%M%S'), bbox_inches='tight', dpi=150)
         plt.clf()
 
