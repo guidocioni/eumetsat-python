@@ -14,17 +14,15 @@ from multiprocessing import Pool
 
 
 def main():
-    folder = '/work/mh0731/m300382/sat/ophelia/'
+    folder = '/work/mh0731/m300382/sat/ilona/'
     fnames = chunks(glob(folder+"*.nc"), 10)
     p = Pool(8)
-    p.map_async(plot_files, fnames).get(9999999)
-
+    p.map(plot_files, fnames)
 
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""
     for i in range(0, len(l), n):
         yield l[i:i + n]
-
 
 def plot_files(fnames):
     # Converts the CPT file to be used in Python
@@ -61,25 +59,26 @@ def plot_files(fnames):
         temp_b=temp_b-273.15
 
         if first:
-            lons = np.array(nc.variables['lon'])
-            lats = np.array(nc.variables['lat'])
-            bmap = Basemap(projection='cyl', llcrnrlon=-50, llcrnrlat=20, urcrnrlon=-5, urcrnrlat=60,  resolution='l')
+            lons = np.ma.masked_less(np.array(nc.variables['lon']), -180)
+            lats = np.ma.masked_less(np.array(nc.variables['lat']), -90)
+            bmap = Basemap(projection='stere', llcrnrlon=-8, llcrnrlat=35, urcrnrlon=21, urcrnrlat=45,\
+                       lon_0=10, lat_0=38,  resolution='i')
             # Draw the coastlines, countries, parallels and meridians
             first=False
 
-        bmap.contourf(lons,lats,temp_b,np.arange(-80,50,0.5),cmap=cpt_convert,extend="both")
+        x,y=bmap(lons,lats)
+        bmap.contourf(x,y,temp_b,np.arange(-80,30,0.1), cmap=cpt_convert, extend="both")
         bmap.drawcoastlines(linewidth=0.5, linestyle='solid', color='white')
         bmap.drawcountries(linewidth=0.5, linestyle='solid', color='white')
-        bmap.drawparallels(np.arange(-90.0, 90.0, 10.0), linewidth=0.2, color='white', labels=[True, False, False, True])
-        bmap.drawmeridians(np.arange(0.0, 360.0, 10.0), linewidth=0.2, color='white', labels=[True, False, False, True])
+        bmap.drawparallels(np.arange(-90.0, 90.0, 5.), linewidth=0.2, color='white', labels=[True, False, False, True], fontsize=7)
+        bmap.drawmeridians(np.arange(0.0, 360.0, 5.), linewidth=0.2, color='white', labels=[True, False, False, True], fontsize=7)
 
         # Insert the legend
-        bmap.colorbar(location='right', label='Brightness Temperature [K]')
+        bmap.colorbar(location='right', label='Brightness Temperature [C]', fraction=0.046, pad=0.04)
 
         date_formatted = datetime.strftime(date,'%H:%MZ %a %d %b %Y')
-        plt.suptitle(date_formatted, fontsize=14, fontweight='bold')
-        plt.title(u"\N{COPYRIGHT SIGN}"+'EUMETSAT - prepared by Guido Cioni (www.guidocioni.it)',fontsize=8 )
-        plt.savefig('./images/%s.png' % datetime.strftime(date,'%Y%m%d%H%M%S'), bbox_inches='tight', dpi=150)
+        plt.title(date_formatted+" | "+u"\N{COPYRIGHT SIGN}"+'EUMETSAT - prepared by Guido Cioni (www.guidocioni.it)', fontsize=8)
+        plt.savefig('./images/%s.png' % datetime.strftime(date,'%Y%m%d%H%M%S'), bbox_inches='tight', dpi=200)
         plt.clf()
 
     plt.close('all')
