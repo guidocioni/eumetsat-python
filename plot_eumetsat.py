@@ -15,20 +15,20 @@ cpt = loadCPT('IR4AVHRR6.cpt')
 # Makes a linear interpolation with the CPT file
 cpt_convert = LinearSegmentedColormap('cpt', cpt)
 
-folder = '/work/mh0731/m300382/sat/zorbas/'
+folder = '/Users/thd5tt/Downloads/sat/'
 first=True
 
-for fname in glob(folder+"W_XX-EUMETSAT-Darmstadt,VIS+IR+IMAGERY,MSG3+SEVIRI_C_EUMG_20180928120009.nc"):
+for fname in glob(folder+"*.nc"):
     # Search for the Scan Start in the file name
     time = (fname[fname.find("MG_")+3:fname.find(".nc")])
     # Format the "Observation Start" string
     date = datetime.strptime(time,'%Y%m%d%H%M%S')
 
     # Check if we already created the image
-    image_string='./images/'+datetime.strftime(date,'%Y%m%d%H%M%S')+'.png'
-    #if os.path.isfile(image_string):
-    #    print('Skipping '+fname)
-    #    continue
+    image_string = folder + 'images/' + datetime.strftime(date,'%Y%m%d%H%M%S') + '.png'
+    if os.path.isfile(image_string):
+       print('Skipping '+fname)
+       continue
 
     print('Using '+fname)
     # Open the file using the NetCDF4 library
