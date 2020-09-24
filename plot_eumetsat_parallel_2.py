@@ -21,7 +21,7 @@ channel = 'ch9'
 channel_hrv = 'ch12'
 
 def main():
-    fnames = list(glob(folder+"*20200916*.nc"))
+    fnames = list(glob(folder+"*20200915*.nc"))
 
     nc = Dataset(fnames[0])
     lons = np.ma.masked_less(np.array(nc.variables['lon']), -180)
@@ -41,7 +41,7 @@ def main():
 
     plot_files_param = partial(plot_files, **args)
 
-    r = process_map(plot_files_param, fnames, max_workers=8)
+    r = process_map(plot_files_param, fnames, max_workers=4)
 
 def plot_files(fname, **args):
     # Converts the CPT file to be used in Python
@@ -94,7 +94,7 @@ def plot_files(fname, **args):
                     loc='lower left', fontsize=7)
     #print('Saving file %s' % image_string)
     plt.savefig(image_string, bbox_inches='tight', dpi=200)
-    #plt.clf()
+    plt.clf()
 
     #plt.close('all')
 
